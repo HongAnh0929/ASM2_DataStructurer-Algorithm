@@ -660,11 +660,6 @@ public class ASM {
         }
 
         System.out.println("\nStudent ranking statistics:");
-        System.out.println("Fail: " + fail);
-        System.out.println("Medium: " + medium);
-        System.out.println("Good: " + good);
-        System.out.println("Very good: " + veryGood);
-        System.out.println("Excellent: " + excellent);
         
         List<String> rankOrder = Arrays.asList("Fail", "Medium", "Good", "Very good", "Excellent");
 
