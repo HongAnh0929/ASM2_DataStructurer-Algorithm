@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Arrays;
 import java.util.Scanner;
 /**
  *
@@ -368,27 +369,48 @@ public class ASM {
         while(choice != 12);
     }
     
+    public static boolean idExists(int ID, List<Student> list) {
+        for (Student student : list) {
+            if (student.getID() == ID) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     static void addStudents(List<Student> list, BST studentTree, Scanner scanner){
         System.out.println("Enter the number of students to add:");
         int numStudent = scanner.nextInt();
         scanner.nextLine();
         for (int i = 0; i < numStudent; i++) {
-            System.out.println("Enter information of student " + (i + 1));
+            System.out.println("Enter the information of student " + (i + 1));
             
-            int ID;
-            System.out.println("Enter student ID: ");
-            while (!scanner.hasNextInt()) {
-                System.out.println("Invalid input! Please enter a valid student ID: ");
-                scanner.next();
+            int ID ;
+            do {
+                System.out.println("Enter student ID: ");
+                while (!scanner.hasNextInt()) {
+                    System.out.println("Invalid input! Please enter a valid student ID: ");
+                    scanner.next();
+                }
+                ID = scanner.nextInt();
+                scanner.nextLine();
+                
+                if (ID <= 0) {
+                    System.out.println("Invalid ID! ID must be a positive number.");
+                    continue;
+                }
+                
+                if (idExists(ID, list)) {
+                    System.out.println("This ID already exists! Please enter a unique ID.");
+                }
             }
-            ID = scanner.nextInt();
-            scanner.nextLine();
+            while (ID <= 0 || idExists(ID, list));
             
             String name;
             while (true) {                
-                System.out.println("Enter student Name: ");
+                System.out.println("Enter student's Name: ");
                 name = scanner.nextLine();
-                if (name.matches(name)) {
+                if (name.matches("[a-zA-Z\\s]+") ){
                     break;
                 } 
                 else {
@@ -420,10 +442,32 @@ public class ASM {
             return;
         }
         
-        System.out.print("Enter the new name: ");
-        String newName = scanner.nextLine();
-        System.out.print("Enter the new mark: ");
-        double newMark = scanner.nextDouble();
+        String newName;
+        while (true) {                
+            System.out.println("Enter the new name: ");
+            newName = scanner.nextLine();
+            if (newName.matches("[a-zA-Z\\s]+")) {
+                break;
+            } 
+            else {
+                System.out.println("Invalid Name! Please enter the new name: ");
+            }
+        }
+
+        double newMark;
+        while(true) {
+            System.out.print("Enter the new mark: ");
+            if (scanner.hasNextDouble()) {
+                newMark = scanner.nextDouble();
+                if (newMark > 0.0 && newMark < 10.0){
+                    break;
+                }
+            }
+            else{
+                System.out.println("Invalid input! Please enter the new Mark: ");
+                scanner.nextLine();
+            }
+        }
         
         studentTree.deleteStudent(ID);
         list.removeIf(s -> s.getID() == ID);
@@ -488,7 +532,7 @@ public class ASM {
                 
             default:
                 System.out.println("The choice is not valid!");
-        }
+        }     
                
     }
     
@@ -505,28 +549,47 @@ public class ASM {
     }
     
     static void enterStudentscore(List<Student> list, BST studentTree, Scanner scanner){
-        System.out.print("Enter student ID: ");
-        while (!scanner.hasNextInt()) {
-            System.out.println("Invalid input! Please enter a valid student ID: ");
-            scanner.next();
+        int ID = -1;
+        boolean validInput = false;
+        
+        while (!validInput) {
+            System.out.print("Enter student ID: ");
+            if(scanner.hasNextInt()) {
+                ID = scanner.nextInt();
+                validInput = true;
+            }
+            else {
+                System.out.println("Invalid input! Please enter a valid student ID: ");
+                scanner.next();
+            }
         }
-        int ID = scanner.nextInt();
-        scanner.nextLine();
+        scanner.nextLine(); // Consume newline
     
         Student student = studentTree.searchByID(ID);
+        // Search for the student
         if (student != null) {
-            double mark;
-            while(true) {
+            double mark = -1.0;
+            validInput = false;
+            
+            // Validate mark input
+            while(!validInput) {
                 System.out.print("Enter the Mark : ");
                 if (scanner.hasNextDouble()) {
                     mark = scanner.nextDouble();
-                    if (mark > 0.0 && mark < 10.0){
-                        break;
+                    if (mark >= 0.0 && mark <= 10.0){
+                        validInput = true;
+                    }
+                    else {
+                        System.out.println("Invalid input! Enter the Mark: ");
                     }
                 }
-                System.out.println("Invalid input! Enter the Mark: ");
-                scanner.nextLine();
+                else {
+                    scanner.next();
+                }  
             }
+            scanner.nextLine();
+            
+            // Update student mark
             student.setMarks(mark);
             System.out.println("Score updated successfully!");
         } 
@@ -534,6 +597,7 @@ public class ASM {
             System.out.println("Student not found!");
         }
 
+        // Display updated student list
         System.out.println("\nUpdated student list:");
         studentTree.inorder();
     }
@@ -601,6 +665,13 @@ public class ASM {
         System.out.println("Good: " + good);
         System.out.println("Very good: " + veryGood);
         System.out.println("Excellent: " + excellent);
+        
+        List<String> rankOrder = Arrays.asList("Fail", "Medium", "Good", "Very good", "Excellent");
+
+    list.stream()
+        .filter(s -> s.getRanking() != null)
+        .sorted(Comparator.comparingInt(s -> rankOrder.indexOf(s.getRanking())))
+        .forEach(System.out::println);
     }
     
     static void sortstudentsbyMark(List<Student> list, BST studentTree, Scanner scanner){
