@@ -661,7 +661,7 @@ public class ASM {
 
         System.out.println("\nStudent ranking statistics:");
         
-        List<String> rankOrder = Arrays.asList("Fail", "Medium", "Good", "Very good", "Excellent");
+        List<String> rankOrder = Arrays.asList("Excellent", "Very good", "Good", "Medium", "Fail");
 
     list.stream()
         .filter(s -> s.getRanking() != null)
